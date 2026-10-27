@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Duke's Bar">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#06222b">
+<title>Duke's Bar</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Mono:wght@400;500&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#06222b; --bg2:#0a3540; --panel:#0e404d; --panel2:#10485a;
+  --cream:#f7f1e4; --gold:#f2b950; --coral:#ff7a52; --leaf:#52c08a;
+  --muted:#7fa0a6; --line:rgba(255,255,255,.09);
+}
+html,body{height:100%}
+body{font-family:'Bricolage Grotesque',system-ui,sans-serif;background:var(--bg);color:var(--cream);font-size:17px;min-height:100vh}
+.screen{display:none}
+.screen.active{display:block}
+.hidden{display:none!important}
+mark{background:rgba(242,185,80,.32);color:var(--cream);border-radius:3px;padding:0 1px}
+
+/* ============ HOME ============ */
+#home{min-height:100vh;display:flex;flex-direction:column;padding:30px 18px 40px;
+  background:radial-gradient(circle at 20% 8%,rgba(242,185,80,.14),transparent 45%),
+             radial-gradient(circle at 85% 92%,rgba(255,122,82,.13),transparent 48%),var(--bg)}
+.home-top{text-align:center;margin:18px 0 30px}
+.home-top .kick{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold)}
+.home-top h1{font-size:clamp(38px,12vw,58px);font-weight:800;letter-spacing:-.03em;line-height:.92;margin:8px 0}
+.home-top h1 span{color:var(--coral)}
+.home-top .stats{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-top:8px}
+.tiles{display:flex;flex-direction:column;gap:14px;max-width:520px;width:100%;margin:0 auto}
+.tile{display:flex;align-items:center;gap:16px;text-align:left;border:1px solid var(--line);border-radius:20px;padding:22px 20px;cursor:pointer;color:var(--cream);font-family:inherit;transition:.16s;background:linear-gradient(150deg,var(--bg2),var(--panel))}
+.tile:active{transform:scale(.985)}
+.tile .emo{font-size:34px;flex:0 0 auto;width:56px;height:56px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border-radius:16px}
+.tile .tt{flex:1}
+.tile .tt h2{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.tile .tt p{font-size:13.5px;color:var(--muted);margin-top:2px;line-height:1.3}
+.tile .arr{font-size:20px;color:var(--gold);opacity:.7}
+.tile.fav{background:linear-gradient(150deg,rgba(242,185,80,.14),rgba(255,122,82,.08));border-color:rgba(242,185,80,.3)}
+.home-foot{text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);opacity:.6;margin-top:auto;padding-top:30px}
+
+/* ============ APP BAR (book/study) ============ */
+.appbar{position:sticky;top:0;z-index:30;background:linear-gradient(180deg,var(--bg) 72%,rgba(6,34,43,.96));backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:12px 12px 10px}
+.appbar-row{display:flex;align-items:center;gap:10px}
+.back{flex:0 0 auto;width:40px;height:40px;border:1px solid var(--line);background:var(--panel);border-radius:12px;color:var(--cream);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.appbar h2{font-size:19px;font-weight:800;letter-spacing:-.01em}
+.appbar h2 span{color:var(--coral)}
+
+/* search */
+.searchwrap{position:relative;flex:1}
+#search{width:100%;font-family:inherit;font-size:17px;font-weight:600;color:var(--cream);background:var(--panel);border:1.5px solid var(--line);border-radius:13px;padding:13px 40px 13px 40px;outline:none;transition:.15s}
+#search::placeholder{color:var(--muted);font-weight:500}
+#search:focus{border-color:var(--gold);background:var(--panel2)}
+.searchwrap .ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.6;pointer-events:none}
+.clearbtn{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:var(--cream);font-size:16px;cursor:pointer;display:none;align-items:center;justify-content:center}
+.clearbtn.show{display:flex}
+
+/* chips */
+.chips{display:flex;gap:7px;overflow-x:auto;padding:2px 0;scrollbar-width:none;flex:1;min-width:0}
+.chips::-webkit-scrollbar{display:none}
+.filterrow{display:flex;align-items:center;gap:8px;padding:10px 0 2px}
+.favbtn{flex:0 0 auto;width:42px;height:34px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:17px;border-radius:30px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center}
+.favbtn.on{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:transparent;color:var(--cream);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:7px 13px;border-radius:30px;cursor:pointer;transition:.15s;opacity:.7;white-space:nowrap}
+.chip.active{background:var(--gold);color:var(--bg);border-color:var(--gold);opacity:1;font-weight:500}
+.chip.star.active{background:var(--gold)}
+.chip.star{color:var(--gold);opacity:.9}
+
+/* sort segmented */
+.segwrap{display:flex;align-items:center;gap:10px;padding:8px 2px 2px}
+.seg{display:inline-flex;background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:11px;padding:3px}
+.seg button{border:0;background:transparent;color:var(--cream);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:7px 12px;border-radius:8px;cursor:pointer;opacity:.6}
+.seg button.on{background:var(--panel2);opacity:1;font-weight:500;color:var(--gold)}
+.seglbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+
+/* ============ BOOK LIST ============ */
+.list{padding:8px 12px 90px;max-width:680px;margin:0 auto}
+.count{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:8px 4px;letter-spacing:.08em}
+.grouphead{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);padding:18px 6px 8px}
+.row{background:var(--bg2);border:1px solid var(--line);border-radius:16px;margin-bottom:9px;overflow:hidden;transition:.15s}
+.row.open{border-color:rgba(242,185,80,.45);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.rowhead{display:flex;align-items:center;gap:11px;padding:15px 15px;cursor:pointer}
+.star{flex:0 0 auto;width:30px;height:30px;border:0;background:transparent;font-size:20px;cursor:pointer;line-height:1;color:var(--muted);opacity:.55;transition:.15s}
+.star.on{color:var(--gold);opacity:1}
+.rowhead .name{font-size:18px;font-weight:700;letter-spacing:-.01em;flex:1;line-height:1.15}
+.rowhead .price{color:var(--gold);font-size:15px;font-weight:500;font-family:'DM Mono',monospace}
+.kind{flex:0 0 auto;white-space:nowrap;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.13em;text-transform:uppercase;padding:3px 7px;border-radius:6px;background:rgba(255,255,255,.07);color:var(--muted)}
+.kind.f{color:#ffd089;background:rgba(242,185,80,.13)}
+.kind.t{color:#9fe0c0;background:rgba(82,192,138,.13)}
+.kind.c{color:#ffb59a;background:rgba(255,122,82,.13)}
+.kind.s{color:#a9d4ff;background:rgba(120,180,255,.14)}
+.kind.m{color:#ffb3d1;background:rgba(255,120,170,.18)}
+.kind.sh{color:#c9b3ff;background:rgba(160,120,255,.18)}
+.offrail{color:var(--gold);font-size:13px;opacity:.85;margin-left:1px}
+.offrail-note{margin-top:14px;font-size:13px;color:var(--muted);background:rgba(242,185,80,.08);border:1px solid rgba(242,185,80,.22);border-radius:10px;padding:9px 12px;line-height:1.45}
+.offrail-note b{color:var(--gold);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+.chev{font-size:12px;opacity:.5;transition:.2s}
+.row.open .chev{transform:rotate(180deg);opacity:.9}
+.detail{max-height:0;overflow:hidden;transition:max-height .28s ease}
+.row.open .detail{max-height:1400px}
+.detail-in{padding:2px 16px 18px;border-top:1px solid var(--line)}
+.specrow{display:flex;gap:12px;margin:14px 0 4px}
+.spec{flex:1;background:rgba(255,255,255,.04);border-radius:12px;padding:10px 12px}
+.spec .l{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);opacity:.85;margin-bottom:3px}
+.spec .v{font-size:14.5px;font-weight:600;line-height:1.25}
+.ing-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);opacity:.85;margin:16px 0 8px}
+.ing{display:flex;align-items:baseline;gap:11px;padding:9px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+.ing:last-child{border-bottom:0}
+.ing .amt{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--gold);flex:0 0 auto;min-width:62px}
+.ing .nm{font-size:16px;font-weight:600}
+.ing .note{font-size:13px;color:var(--coral);font-weight:600;margin-left:4px}
+.allergy{margin-top:14px;font-size:13px;color:var(--muted);background:rgba(255,122,82,.08);border:1px solid rgba(255,122,82,.2);border-radius:10px;padding:9px 12px;line-height:1.4}
+.allergy b{color:#ffb59a;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+.notes-line{font-size:14px;color:var(--cream);line-height:1.5;margin-top:4px}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .big{font-size:40px;margin-bottom:10px}
+
+/* ============ STUDY ============ */
+.swrap{max-width:680px;margin:0 auto;padding:14px 14px 80px}
+.tabs{display:flex;gap:8px;background:rgba(0,0,0,.22);padding:6px;border-radius:16px;margin:4px 0 16px;border:1px solid var(--line)}
+.tab{flex:1;border:0;background:transparent;color:var(--cream);font-family:inherit;font-weight:700;font-size:14px;padding:11px 8px;border-radius:11px;cursor:pointer;transition:.2s;opacity:.65}
+.tab.active{background:linear-gradient(135deg,var(--coral),#ff9466);opacity:1;box-shadow:0 6px 18px rgba(255,122,82,.32)}
+.bar{height:6px;background:rgba(0,0,0,.25);border-radius:10px;overflow:hidden;margin-bottom:4px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--leaf),var(--gold));width:0;transition:.4s}
+.scount{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px}
+.card-area{margin-bottom:18px}
+.card{position:relative;width:100%}
+.face{width:100%;box-sizing:border-box;border-radius:24px;padding:28px 24px;border:1px solid var(--line);box-shadow:0 20px 50px rgba(0,0,0,.4);min-height:380px;cursor:pointer}
+.front{display:flex;flex-direction:column;background:linear-gradient(165deg,#fff,var(--cream));color:#0c2128}
+.back{display:none;background:linear-gradient(165deg,var(--panel),var(--bg));overflow-y:auto;max-height:74vh}
+.card.flip .front{display:none}
+.card.flip .back{display:block}
+.card:not(.flip) .front,.card.flip .back{animation:cardin .22s ease}
+@keyframes cardin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.face .tag{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--coral);margin-bottom:14px}
+.back .tag{color:var(--gold)}
+.q-name{font-size:clamp(26px,7vw,38px);font-weight:800;line-height:1.02;letter-spacing:-.02em}
+.front .hint{margin-top:auto;font-family:'DM Mono',monospace;font-size:12px;color:#6e8a8f}
+.detailc{margin:0 0 13px}
+.detailc .lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);opacity:.85;margin-bottom:3px}
+.detailc .val{font-size:15px;line-height:1.4;font-weight:500}
+.recipe{white-space:pre-line;font-size:14.5px;line-height:1.55}
+.scroll{overflow-y:auto;flex:1}
+.scroll::-webkit-scrollbar{width:5px}.scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:6px}
+.nav{display:flex;gap:10px}
+.btn{flex:1;border:0;font-family:inherit;font-weight:700;font-size:15px;padding:15px;border-radius:15px;cursor:pointer;transition:.18s;background:rgba(255,255,255,.08);color:var(--cream);border:1px solid var(--line)}
+.btn:hover{background:rgba(255,255,255,.14)}
+.btn.primary{background:linear-gradient(135deg,var(--coral),#ff9466);border:0;box-shadow:0 6px 18px rgba(255,122,82,.3)}
+.btn:active{transform:translateY(1px)}
+.quiz-card,.build-card{background:linear-gradient(165deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:24px;padding:26px 22px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.qcat{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.qtext{font-size:clamp(20px,5.5vw,27px);font-weight:700;line-height:1.2;margin-bottom:22px;letter-spacing:-.01em}
+.qtext small{display:block;font-size:14px;font-weight:400;color:var(--muted);margin-top:6px;font-family:'DM Mono',monospace}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{text-align:left;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--cream);font-family:inherit;font-size:15.5px;font-weight:500;padding:15px 16px;border-radius:14px;cursor:pointer;transition:.15s;line-height:1.3}
+.opt:hover:not(:disabled){background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3)}
+.opt:disabled{cursor:default}
+.opt.correct{background:rgba(82,192,138,.28);border-color:var(--leaf);color:#cdf4dd}
+.opt.wrong{background:rgba(255,122,82,.22);border-color:var(--coral)}
+.opt.sel{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:700}
+.score{display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);margin-bottom:14px}
+.score b{color:var(--gold)}
+.feedback{margin-top:18px;text-align:center;min-height:24px;font-weight:700;font-size:16px}
+.feedback.ok{color:var(--leaf)}.feedback.no{color:var(--coral)}
+.next-wrap{margin-top:16px}
+.results{text-align:center;padding:18px 0}
+.results .big{font-size:60px;font-weight:800;color:var(--gold);line-height:1}
+.results p{color:var(--muted);margin:8px 0 22px;font-size:15px}
+.build-sub{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--coral);margin-bottom:8px}
+.build-head{font-size:clamp(24px,6.5vw,34px);font-weight:800;letter-spacing:-.02em;line-height:1}
+.section-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:20px 0 9px}
+.glassbox{min-height:46px;border:1.5px dashed rgba(255,255,255,.2);border-radius:14px;padding:8px;display:flex;flex-wrap:wrap;gap:7px;align-content:flex-start;background:rgba(0,0,0,.14)}
+.glassbox.empty::before{content:"tap ingredients below to add";font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);opacity:.6;padding:6px}
+.pour{display:inline-flex;align-items:center;gap:8px;background:rgba(82,192,138,.2);border:1px solid var(--leaf);color:#cdf4dd;font-size:13.5px;font-weight:600;padding:7px 11px;border-radius:30px;cursor:pointer;animation:pop .2s}
+.pour .x{opacity:.55;font-weight:700}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.tiles2{display:flex;flex-wrap:wrap;gap:8px}
+.tile2{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--cream);font-family:inherit;font-size:13.5px;font-weight:500;padding:9px 13px;border-radius:12px;cursor:pointer;transition:.14s}
+.tile2:hover:not(:disabled){background:rgba(255,255,255,.12)}
+.tile2.used{opacity:.3;text-decoration:line-through;cursor:default}
+.tile2:disabled{cursor:default}
+.grid2{display:flex;flex-wrap:wrap;gap:8px}
+.grid2 .opt{flex:1;min-width:140px;text-align:center}
+.reveal{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+.reveal .line{display:flex;align-items:flex-start;gap:8px;font-size:14px;margin-bottom:6px;line-height:1.4}
+.reveal .mk{font-weight:800;flex-shrink:0}
+.mk.ok{color:var(--leaf)}.mk.no{color:var(--coral)}
+.reveal .answer{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);margin-top:4px;padding-left:24px;white-space:pre-line}
+</style>
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<section id="home" class="screen active">
+  <div class="home-top">
+    <div class="kick">Duke's Malibu</div>
+    <h1>Bar<span>Book</span></h1>
+    <div class="stats" id="homeStats"></div>
+  </div>
+  <div class="tiles">
+    <button class="tile" data-go="book">
+      <span class="emo">🍹</span>
+      <span class="tt"><h2>Bar Book</h2><p>Find any drink fast — full build &amp; method</p></span>
+      <span class="arr">→</span>
+    </button>
+    <button class="tile" data-go="study">
+      <span class="emo">📇</span>
+      <span class="tt"><h2>Study</h2><p>Flashcards · Quiz · Build it yourself</p></span>
+      <span class="arr">→</span>
+    </button>
+    <button class="tile fav" data-go="faves">
+      <span class="emo">⭐</span>
+      <span class="tt"><h2>Favorites</h2><p>Your starred drinks, all in one place</p></span>
+      <span class="arr">→</span>
+    </button>
+  </div>
+  <div class="home-foot">study sober, serve sharp 🌺</div>
+</section>
+
+<!-- ============ BOOK ============ -->
+<section id="book" class="screen">
+  <div class="appbar">
+    <div class="appbar-row">
+      <button class="back" data-go="home">←</button>
+      <div class="searchwrap">
+        <span class="ico">🔍</span>
+        <input id="search" type="text" inputmode="search" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Search drink or ingredient…">
+        <button class="clearbtn" id="clear">×</button>
+      </div>
+    </div>
+    <div class="filterrow">
+      <button class="favbtn" id="bookFavBtn" aria-label="Favorites">★</button>
+      <div class="chips" id="bookChips"></div>
+    </div>
+    <div class="segwrap">
+      <span class="seglbl">View</span>
+      <div class="seg" id="sortSeg">
+        <button data-sort="az" class="on">A–Z</button>
+        <button data-sort="type">By Type</button>
+      </div>
+    </div>
+  </div>
+  <div class="list">
+    <div class="count" id="bookCount"></div>
+    <div id="bookResults"></div>
+  </div>
+</section>
+
+<!-- ============ STUDY ============ -->
+<section id="study" class="screen">
+  <div class="appbar">
+    <div class="appbar-row">
+      <button class="back" data-go="home">←</button>
+      <h2>Study<span>.</span></h2>
+    </div>
+    <div class="filterrow">
+      <button class="favbtn" id="studyFavBtn" aria-label="Study favorites">★</button>
+      <div class="chips" id="studyChips"></div>
+    </div>
+  </div>
+  <div class="swrap">
+    <div class="tabs">
+      <button class="tab active" data-mode="cards">📇 Cards</button>
+      <button class="tab" data-mode="quiz">⚡ Quiz</button>
+      <button class="tab" data-mode="build">🍹 Build</button>
+    </div>
+    <section id="cardsView">
+      <div class="bar"><i id="cardProg"></i></div>
+      <div class="scount" id="cardCount"></div>
+      <div class="card-area"><div class="card" id="card">
+        <div class="face front" id="front"></div>
+        <div class="face back" id="back"></div>
+      </div></div>
+      <div class="nav">
+        <button class="btn" id="prev">← Prev</button>
+        <button class="btn primary" id="flip">Flip</button>
+        <button class="btn" id="next">Next →</button>
+      </div>
+    </section>
+    <section id="quizView" class="hidden">
+      <div class="score"><span>Question <b id="qNum">1</b></span><span>Score <b id="qScore">0</b></span></div>
+      <div class="bar"><i id="quizProg"></i></div>
+      <div style="height:14px"></div>
+      <div id="quizBody"></div>
+    </section>
+    <section id="buildView" class="hidden">
+      <div class="score"><span>Build <b id="bNum">1</b></span><span>Score <b id="bScore">0</b></span></div>
+      <div class="bar"><i id="buildProg"></i></div>
+      <div style="height:14px"></div>
+      <div id="buildBody"></div>
+    </section>
+  </div>
+</section>
+
+<script>
+const DATA = {
+  "My Drinks": [
+    {n:"Pink Purr Baby",glass:"Coupe Glass",garnish:"Lemon twist",allergy:"Coconut",
+      recipe:"1.25 oz Hendrick's Gin\n0.25 oz St-Germain\n0.75 oz Lavender-Lemon Mix\n0.5 oz Cranberry Juice\n0.25 oz Chambord\n0.5 oz Coco Lopez",
+      build:["1.25 oz Hendrick's Gin","0.25 oz St-Germain","0.75 oz Lavender-Lemon Mix","0.5 oz Cranberry Juice","0.25 oz Chambord","0.5 oz Coco Lopez"]},
+  ],
+  Featured: [
+    {n:"Duke's Mai Tai",price:"$17",glass:"Short Tiki Mug",garnish:"Pineapple wedge, lime wedge, parasol & short straw",allergy:"Treenut, pineapple, citrus",
+      recipe:"0.5 oz Orange Curaçao Liqueur\n0.25 oz Orgeat\n0.5 oz Mahina Platinum Rum\n3.5 oz PPOG juice\n1.25 oz Mahina Dark Rum",
+      build:["0.5 oz Orange Curaçao Liqueur","0.25 oz Orgeat","0.5 oz Mahina Platinum Rum","3.5 oz PPOG Juice","1.25 oz Mahina Dark Rum"]},
+    {n:"Lava Flow",price:"$16",glass:"Squall Glass",garnish:"Pineapple wedge, cherry & tall straw",allergy:"Pineapple, citrus, strawberry, coconut",
+      recipe:"1.25 oz Bacardi White Rum\n3 oz Coco Lopez\n1.25 oz Pineapple Juice\n1 oz Strawberry Purée (bottom of glass)\n\n$3 float: Myers's or Mahina Dark Rum",
+      build:["1.25 oz Bacardi White Rum","3 oz Coco Lopez","1.25 oz Pineapple Juice","1 oz Strawberry Purée"]},
+    {n:"Raspberry Mojito",price:"$16",glass:"Bucket",garnish:"Mint sprig & a lime",allergy:"Citrus, red raspberries",
+      recipe:"1.25 oz Koloa Rum\n2 oz Raspberry Mint Mix (0.75 oz lime, 0.5 oz mint syrup, 2-3 raspberries)\n2 oz Club Soda",
+      build:["1.25 oz Koloa Rum","2 oz Raspberry Mint Mix","2 oz Club Soda"]},
+    {n:"Lavender Yuzu Lemonade",price:"$17",glass:"Tall Tiki Glass",garnish:"Lemon wedge",allergy:"Citrus",
+      recipe:"1 oz Pau Maui Vodka\n1.5 oz Joto Yuzu Sake\n0.75 oz Monin Lavender Syrup\n0.75 oz Lemon\nTopped with Club Soda",
+      build:["1 oz Pau Maui Vodka","1.5 oz Joto Yuzu Sake","0.75 oz Monin Lavender Syrup","0.75 oz Lemon","Top with Club Soda"]},
+    {n:"Lychee Martini",price:"$17",glass:"Coupe Glass",garnish:"Pineapple slice",allergy:"Citrus, pineapple",
+      recipe:"1.5 oz Pau Vodka\n1.5 oz Lychee\n1 oz Pineapple Juice\n1 Lemon",
+      build:["1.5 oz Pau Vodka","1.5 oz Lychee","1 oz Pineapple Juice","1 Lemon"]},
+    {n:"Hawaiian Mule",price:"$16",glass:"Bucket",garnish:"Pineapple leaf, lime",allergy:"Pineapple",
+      recipe:"1 oz Pau Maui Vodka\n0.5 oz Lime Juice\n1 oz Pineapple Juice\n1 oz Ginger Beer",
+      build:["1 oz Pau Maui Vodka","0.5 oz Lime Juice","1 oz Pineapple Juice","1 oz Ginger Beer"]},
+    {n:"Duke's Old Fashioned",price:"$17",glass:"Bucket w/ large ice cube",garnish:"Orange peel, black cherry on bamboo pick",allergy:"—",
+      recipe:"1.5 oz Four Roses Bourbon\n0.5 oz Amaro Lucano\n2 dashes Angostura Orange Bitters\n0.25 oz Simple Syrup",
+      build:["1.5 oz Four Roses Bourbon","0.5 oz Amaro Lucano","2 dashes Angostura Orange Bitters","0.25 oz Simple Syrup"]},
+    {n:"Duke's Tiki Old Fashioned",price:"$17",glass:"Bucket w/ large ice cube",garnish:"Orange peel, black cherry on parasol umbrella",allergy:"—",
+      recipe:"1.5 oz Diplomático Rum\n0.5 oz Amaro Lucano\n2 dashes Angostura Orange Bitters\n0.25 oz Simple Syrup",
+      build:["1.5 oz Diplomático Rum","0.5 oz Amaro Lucano","2 dashes Angostura Orange Bitters","0.25 oz Simple Syrup"]},
+    {n:"Spicy Cucumber Margarita",price:"$16",glass:"Bucket w/ Tajín rim",garnish:"Cucumber, jalapeño, lime",allergy:"—",
+      recipe:"1.25 oz Astral Blanco\n0.5 oz Triple Sec\n3 oz Spicy Cucumber mix (lemon, lime, agave, cucumber, jalapeño)",
+      build:["1.25 oz Astral Blanco","0.5 oz Triple Sec","3 oz Spicy Cucumber Mix"]},
+    {n:"PPOG Slushie w/ Tito's",price:"$15",glass:"Tall Tiki Glass",garnish:"Pineapple slice, boba straw",allergy:"Pineapple, passionfruit, orange, guava",
+      recipe:"1.25 oz guest's spirit of choice\nEqual parts fresh PPOG + PPOG Slushie Mix\n(Tito's upsell — any liquor allowed)",
+      build:["1.25 oz Spirit of Choice","Equal parts Fresh PPOG","Equal parts PPOG Slushie Mix"]},
+    {n:"Volcano (Virgin Lava Flow)",price:"$11",glass:"Zero Proof Glass",garnish:"Pineapple wedge, cherry, tall straw",allergy:"Pineapple, citrus, strawberry, coconut",
+      recipe:"5 oz Coco Lopez\n2 oz Pineapple Juice\n1 oz Strawberry Purée (bottom)\nBlended until smooth — N/A",
+      build:["5 oz Coco Lopez","2 oz Pineapple Juice","1 oz Strawberry Purée"]},
+    {n:"Raspberry Fizz",price:"$10",glass:"Zero Proof Glass",garnish:"Lime wedge & mint sprig",allergy:"Citrus, red raspberries",
+      recipe:"2 oz Raspberry Mint Mix (0.75 oz lime, 0.5 oz mint syrup, 2-3 raspberries)\n2 oz Club Soda\n2 oz Sprite — N/A",
+      build:["2 oz Raspberry Mint Mix","2 oz Club Soda","2 oz Sprite"]},
+    {n:"PPOG Slushie Virgin",price:"$11",glass:"Slushie Glass",garnish:"Pineapple slice, boba straw",allergy:"Pineapple, citrus, guava",
+      recipe:"Fresh PPOG Juice — N/A",
+      build:["Fresh PPOG Juice"]},
+  ],
+  Tiki: [
+    {n:"Blue Hawaii",glass:"Hurricane Glass",garnish:"Pineapple & cherry",
+      recipe:"1.25 oz Malibu Rum\n0.5 oz Blue Curaçao\n0.25 oz Lime Juice\n3 oz Pineapple Juice",
+      build:["1.25 oz Malibu Rum","0.5 oz Blue Curaçao","0.25 oz Lime Juice","3 oz Pineapple Juice"]},
+    {n:"Blue Hawaiian",glass:"Hurricane Glass",garnish:"Pineapple & cherry",
+      recipe:"1.25 oz Malibu Rum\n0.5 oz Blue Curaçao\n0.25 oz Lime Juice\n3 oz Pineapple Juice\n1 oz Coco Lopez",
+      build:["1.25 oz Malibu Rum","0.5 oz Blue Curaçao","0.25 oz Lime Juice","3 oz Pineapple Juice","1 oz Coco Lopez"]},
+    {n:"Hurricane",glass:"Hurricane Glass",garnish:"Pineapple",
+      recipe:"1 oz Light Rum\n1 oz Dark Rum\n0.5 oz Lime Juice\n3 oz PPOG\n0.25 oz Grenadine",
+      build:["1 oz Light Rum","1 oz Dark Rum","0.5 oz Lime Juice","3 oz PPOG","0.25 oz Grenadine"]},
+    {n:"Jungle Bird",glass:"Tall Tiki Glass",garnish:"Pineapple",
+      recipe:"1.25 oz Rum\n0.75 oz Aperol\n1 oz Pineapple Juice\n0.25 oz Lime Juice",
+      build:["1.25 oz Rum","0.75 oz Aperol","1 oz Pineapple Juice","0.25 oz Lime Juice"]},
+    {n:"Painkiller",glass:"Tall Tiki Glass",garnish:"Pineapple",
+      recipe:"1.25 oz Dark Rum\n2 oz Pineapple Juice\n1 oz Orange Juice\n1 oz Coco Lopez\n0.5 oz Lime Juice",
+      build:["1.25 oz Dark Rum","2 oz Pineapple Juice","1 oz Orange Juice","1 oz Coco Lopez","0.5 oz Lime Juice"]},
+    {n:"Rum Runner",glass:"Bucket",garnish:"Pineapple & cherry",
+      recipe:"0.75 oz Brandy\n3 oz PPOG\n0.75 oz Dark Rum",
+      build:["0.75 oz Brandy","3 oz PPOG","0.75 oz Dark Rum"]},
+    {n:"Scorpion",glass:"Tall Tiki Glass",garnish:"Pineapple",
+      recipe:"1.25 oz Rum\n0.5 oz Brandy\n1 oz Orange Juice\n0.5 oz Orgeat Mix",
+      build:["1.25 oz Rum","0.5 oz Brandy","1 oz Orange Juice","0.5 oz Orgeat Mix"]},
+    {n:"Trader Vic's Mai Tai",glass:"Mai Tai Glass",garnish:"Lime & mint",
+      recipe:"0.5 oz Light Rum\n1.25 oz Dark Rum (Float)\n0.75 oz Orgeat Mix\n0.5 oz Lime Juice",
+      build:["0.5 oz Light Rum","1.25 oz Dark Rum (Float)","0.75 oz Orgeat Mix","0.5 oz Lime Juice"]},
+  ],
+  Classics: [
+    {n:"Manhattan",glass:"Martini Glass",garnish:"Luxardo cherry",
+      recipe:"2.5 oz Bourbon/Whiskey/Rye\n0.75 oz Sweet Vermouth\n2 dashes Angostura Bitters",
+      build:["2.5 oz Bourbon/Whiskey/Rye","0.75 oz Sweet Vermouth","2 dashes Angostura Bitters"]},
+    {n:"Martinez",glass:"Martini Glass",garnish:"Orange twist",
+      recipe:"1.25 oz Gin\n1.25 oz Sweet Vermouth\n0.25 oz Luxardo Liqueur\n2 dashes Angostura Bitters",
+      build:["1.25 oz Gin","1.25 oz Sweet Vermouth","0.25 oz Luxardo Liqueur","2 dashes Angostura Bitters"]},
+    {n:"Negroni",glass:"Bucket",garnish:"Orange peel",
+      recipe:"1 oz Gin\n1 oz Sweet Vermouth\n1 oz Campari",
+      build:["1 oz Gin","1 oz Sweet Vermouth","1 oz Campari"]},
+    {n:"Old Fashioned",glass:"Bucket",garnish:"Orange peel & cherry",
+      recipe:"1.25 oz Bourbon/Whiskey/Rye\n0.5 oz Simple Syrup\n3 dashes Angostura Bitters",
+      build:["1.25 oz Bourbon/Whiskey/Rye","0.5 oz Simple Syrup","3 dashes Angostura Bitters"]},
+    {n:"Paloma",glass:"Bucket",garnish:"Salt rim & lime wedge",
+      recipe:"1.25 oz Tequila\n0.25 oz Lime Juice\n3 oz Grapefruit Juice",
+      build:["1.25 oz Tequila","0.25 oz Lime Juice","3 oz Grapefruit Juice"]},
+    {n:"Sea Breeze",glass:"Hurricane Glass",garnish:"Lime",
+      recipe:"1.25 oz Vodka\n2 oz Cranberry Juice\n3 oz Grapefruit Juice",
+      build:["1.25 oz Vodka","2 oz Cranberry Juice","3 oz Grapefruit Juice"]},
+    {n:"Sidecar",glass:"Martini Glass",garnish:"Sugar rim & lemon peel",
+      recipe:"1.25 oz Cognac\n0.75 oz Lemon Juice\n0.75 oz Triple Sec",
+      build:["1.25 oz Cognac","0.75 oz Lemon Juice","0.75 oz Triple Sec"]},
+    {n:"Tequila Sunrise",glass:"Hurricane Glass",garnish:"Cherry",
+      recipe:"1.25 oz Tequila\n3 oz Orange Juice\n0.5 oz Grenadine (Float)",
+      build:["1.25 oz Tequila","3 oz Orange Juice","0.5 oz Grenadine (Float)"]},
+    {n:"Tom Collins",glass:"Tall Tiki Glass",garnish:"Lemon wedge",
+      recipe:"1.25 oz Gin\n0.5 oz Lemon Juice\n0.25 oz Simple Syrup\nTop with Soda",
+      build:["1.25 oz Gin","0.5 oz Lemon Juice","0.25 oz Simple Syrup","Top with Soda"]},
+    {n:"Last Word",glass:"Coupe Glass",garnish:"Luxardo cherry",
+      recipe:"0.75 oz Gin\n0.75 oz Green Chartreuse\n0.75 oz Maraschino Liqueur\n0.75 oz Lime Juice",
+      build:["0.75 oz Gin","0.75 oz Green Chartreuse","0.75 oz Maraschino Liqueur","0.75 oz Lime Juice"]},
+    {n:"The Great Pretender",glass:"Coupe Glass",garnish:"Cinnamon-sugar rim",special:"Smith & Cross rum, vanilla & cinnamon syrups",
+      recipe:"2 oz Smith & Cross Rum\n0.5 oz Pineapple Juice\n0.5 oz Lime Juice\n0.5 oz Vanilla Syrup\n1 tsp Cinnamon Syrup",
+      build:["2 oz Smith & Cross Rum","0.5 oz Pineapple Juice","0.5 oz Lime Juice","0.5 oz Vanilla Syrup","1 tsp Cinnamon Syrup"]},
+    {n:"The Gift Shop",glass:"Bucket w/ large ice cube",garnish:"3 cucumber wheels, fanned",special:"Cardamaro, Banks 5-Island rum",
+      recipe:"3 Cucumber Wheels\n2 oz Banks 5-Island White Rum\n0.5 oz Cardamaro\n0.75 oz Lime Juice\n0.75 oz Simple Syrup\n1 dash Angostura Bitters",
+      build:["3 Cucumber Wheels","2 oz Banks 5-Island White Rum","0.5 oz Cardamaro","0.75 oz Lime Juice","0.75 oz Simple Syrup","1 dash Angostura Bitters"]},
+    {n:"Boulevardier",glass:"Coupe Glass",garnish:"Lemon twist",
+      recipe:"1.5 oz Bourbon\n0.75 oz Sweet Vermouth\n0.75 oz Campari",
+      build:["1.5 oz Bourbon","0.75 oz Sweet Vermouth","0.75 oz Campari"]},
+    {n:"Caipirinha",glass:"Bucket",garnish:"None",special:"Cacha\u00e7a \u2014 at Duke\u2019s, sub 2 oz white rum (Bacardi/Koloa) for a Caipirissima",
+      recipe:"6 Lime Wedges\n0.75 oz Simple Syrup\n1 Sugar Cube\n2 oz Cachaça",
+      build:["6 Lime Wedges","0.75 oz Simple Syrup","1 Sugar Cube","2 oz Cachaça"]},
+    {n:"Champs-\u00c9lys\u00e9es",glass:"Coupe Glass",garnish:"Lemon twist",
+      recipe:"2 oz Cognac\n0.5 oz Green Chartreuse\n0.75 oz Lemon Juice\n0.5 oz Simple Syrup\n1 dash Angostura Bitters",
+      build:["2 oz Cognac","0.5 oz Green Chartreuse","0.75 oz Lemon Juice","0.5 oz Simple Syrup","1 dash Angostura Bitters"]},
+    {n:"Fancy-Free",glass:"Bucket w/ large ice cube",garnish:"Orange twist",
+      recipe:"2 oz Rye\n0.5 oz Maraschino Liqueur\n1 dash Angostura Bitters\n1 dash Orange Bitters",
+      build:["2 oz Rye","0.5 oz Maraschino Liqueur","1 dash Angostura Bitters","1 dash Orange Bitters"]},
+    {n:"Fitzgerald",glass:"Bucket",garnish:"Lemon wedge",
+      recipe:"2 oz Gin\n0.75 oz Lemon Juice\n1 oz Simple Syrup\n2 dashes Angostura Bitters",
+      build:["2 oz Gin","0.75 oz Lemon Juice","1 oz Simple Syrup","2 dashes Angostura Bitters"]},
+    {n:"French 75",glass:"Champagne Flute",garnish:"Lemon twist",
+      recipe:"1.5 oz Gin\n0.75 oz Lemon Juice\n0.5 oz Simple Syrup\nTop with Champagne",
+      build:["1.5 oz Gin","0.75 oz Lemon Juice","0.5 oz Simple Syrup","Top with Champagne"]},
+    {n:"French 95",glass:"Bucket",garnish:"None",
+      recipe:"2 oz Bourbon\n0.75 oz Lemon Juice\n0.5 oz Simple Syrup\nTop with Champagne",
+      build:["2 oz Bourbon","0.75 oz Lemon Juice","0.5 oz Simple Syrup","Top with Champagne"]},
+    {n:"Gin Fizz",glass:"Tall Tiki Glass",garnish:"None",special:"Egg white \u2014 at Duke\u2019s, sub 0.5 oz Coco Lopez for foam",
+      recipe:"2 oz Gin\n0.75 oz Lemon Juice\n0.75 oz Simple Syrup\n1 Egg White\nTop with Club Soda",
+      build:["2 oz Gin","0.75 oz Lemon Juice","0.75 oz Simple Syrup","1 Egg White","Top with Club Soda"]},
+    {n:"Gin Rickey",glass:"Tall Tiki Glass",garnish:"Lime wedge",
+      recipe:"2 oz Gin\n1 oz Lime Juice\n0.5 oz Simple Syrup\nTop with Club Soda",
+      build:["2 oz Gin","1 oz Lime Juice","0.5 oz Simple Syrup","Top with Club Soda"]},
+    {n:"Hanky-Panky",glass:"Coupe Glass",garnish:"Lemon twist",
+      recipe:"2 oz Gin\n0.5 oz Sweet Vermouth\n0.5 oz Carpano Antica\n0.25 oz Fernet-Branca",
+      build:["2 oz Gin","0.5 oz Sweet Vermouth","0.5 oz Carpano Antica","0.25 oz Fernet-Branca"]},
+    {n:"Honeysuckle",glass:"Coupe Glass",garnish:"Lime wedge",special:"Honey syrup \u2014 make 1:1 honey + hot water if not stocked",
+      recipe:"2 oz White Rum\n0.75 oz Lime Juice\n0.75 oz Honey Syrup",
+      build:["2 oz White Rum","0.75 oz Lime Juice","0.75 oz Honey Syrup"]},
+    {n:"Lucien Gaudin",glass:"Coupe Glass",garnish:"Lemon twist",
+      recipe:"1.5 oz Gin\n0.5 oz Dry Vermouth\n0.5 oz Campari\n0.5 oz Cointreau",
+      build:["1.5 oz Gin","0.5 oz Dry Vermouth","0.5 oz Campari","0.5 oz Cointreau"]},
+    {n:"Mexican Firing Squad",glass:"Tall Tiki Glass",garnish:"Lime wheel & cherry",special:"Hellfire habanero shrub \u2014 sub a dash of hot sauce or muddled jalape\u00f1o",
+      recipe:"1.5 oz Blanco Tequila\n0.75 oz Lime Juice\n0.5 oz Simple Syrup\n0.25 oz Grenadine\n2 dashes Hellfire Habanero Shrub",
+      build:["1.5 oz Blanco Tequila","0.75 oz Lime Juice","0.5 oz Simple Syrup","0.25 oz Grenadine","2 dashes Hellfire Habanero Shrub"]},
+    {n:"Old Pal",glass:"Coupe Glass",garnish:"Lemon twist",
+      recipe:"1.5 oz Rye\n0.75 oz Campari\n0.75 oz Dry Vermouth",
+      build:["1.5 oz Rye","0.75 oz Campari","0.75 oz Dry Vermouth"]},
+    {n:"Rob Roy",glass:"Coupe Glass",garnish:"Luxardo cherry",
+      recipe:"2 oz Scotch\n0.75 oz Sweet Vermouth\n2 dashes Angostura Bitters",
+      build:["2 oz Scotch","0.75 oz Sweet Vermouth","2 dashes Angostura Bitters"]},
+    {n:"South Side",glass:"Coupe Glass",garnish:"Mint leaf",
+      recipe:"5 Mint Leaves\n2 oz Gin\n0.75 oz Lime Juice\n0.5 oz Simple Syrup\n1 dash Angostura Bitters",
+      build:["5 Mint Leaves","2 oz Gin","0.75 oz Lime Juice","0.5 oz Simple Syrup","1 dash Angostura Bitters"]},
+    {n:"Tailspin",glass:"Coupe Glass",garnish:"Lemon twist",
+      recipe:"Campari (rinse)\n1.5 oz Gin\n1 oz Carpano Antica\n1 oz Green Chartreuse\n1 dash Orange Bitters",
+      build:["Campari rinse","1.5 oz Gin","1 oz Carpano Antica","1 oz Green Chartreuse","1 dash Orange Bitters"]},
+  ],
+  Standards: [
+    {n:"Screwdriver",glass:"Tall Tiki Glass",garnish:"Orange slice",
+      recipe:"1.25 oz Vodka\n4 oz Orange Juice",
+      build:["1.25 oz Vodka","4 oz Orange Juice"]},
+    {n:"Vodka Soda",glass:"Tall Tiki Glass",garnish:"Lime wedge",
+      recipe:"1.25 oz Vodka\nTop with Soda Water",
+      build:["1.25 oz Vodka","Top with Soda Water"]},
+    {n:"Vodka Tonic",glass:"Tall Tiki Glass",garnish:"Lime wedge",
+      recipe:"1.25 oz Vodka\nTop with Tonic",
+      build:["1.25 oz Vodka","Top with Tonic"]},
+    {n:"Gin & Tonic",glass:"Tall Tiki Glass",garnish:"Lime wedge",
+      recipe:"1.25 oz Gin\nTop with Tonic",
+      build:["1.25 oz Gin","Top with Tonic"]},
+    {n:"Rum & Coke",glass:"Tall Tiki Glass",garnish:"Lime wedge",
+      recipe:"1.25 oz Rum\nTop with Coca-Cola",
+      build:["1.25 oz Rum","Top with Coca-Cola"]},
+    {n:"Cuba Libre",glass:"Tall Tiki Glass",garnish:"Lime wedge",
+      recipe:"1.25 oz Rum\n0.25 oz Lime Juice\nTop with Coca-Cola",
+      build:["1.25 oz Rum","0.25 oz Lime Juice","Top with Coca-Cola"]},
+    {n:"Jack & Coke",glass:"Tall Tiki Glass",garnish:"Lime wedge",
+      recipe:"1.25 oz Jack Daniel's\nTop with Coca-Cola",
+      build:["1.25 oz Jack Daniel's","Top with Coca-Cola"]},
+    {n:"Whiskey Ginger",glass:"Tall Tiki Glass",garnish:"Lemon wedge",
+      recipe:"1.25 oz Whiskey\nTop with Ginger Ale",
+      build:["1.25 oz Whiskey","Top with Ginger Ale"]},
+    {n:"7 & 7",glass:"Tall Tiki Glass",garnish:"Lime wedge",
+      recipe:"1.25 oz Seagram's 7\nTop with 7UP",
+      build:["1.25 oz Seagram's 7","Top with 7UP"]},
+    {n:"Greyhound",glass:"Tall Tiki Glass",garnish:"Lime wedge",
+      recipe:"1.25 oz Vodka\n4 oz Grapefruit Juice",
+      build:["1.25 oz Vodka","4 oz Grapefruit Juice"]},
+    {n:"Cape Codder",glass:"Tall Tiki Glass",garnish:"Lime wedge",
+      recipe:"1.25 oz Vodka\n4 oz Cranberry Juice",
+      build:["1.25 oz Vodka","4 oz Cranberry Juice"]},
+    {n:"Madras",glass:"Tall Tiki Glass",garnish:"Lime wedge",
+      recipe:"1.25 oz Vodka\n2 oz Cranberry Juice\n2 oz Orange Juice",
+      build:["1.25 oz Vodka","2 oz Cranberry Juice","2 oz Orange Juice"]},
+    {n:"Sex on the Beach",glass:"Tall Tiki Glass",garnish:"Orange slice",
+      recipe:"1.25 oz Vodka\n0.5 oz Peach Schnapps\n2 oz Cranberry Juice\n2 oz Orange Juice",
+      build:["1.25 oz Vodka","0.5 oz Peach Schnapps","2 oz Cranberry Juice","2 oz Orange Juice"]},
+    {n:"Moscow Mule",glass:"Bucket",garnish:"Lime wedge",
+      recipe:"1.25 oz Vodka\n0.5 oz Lime Juice\n3 oz Ginger Beer",
+      build:["1.25 oz Vodka","0.5 oz Lime Juice","3 oz Ginger Beer"]},
+    {n:"Dark & Stormy",glass:"Tall Tiki Glass",garnish:"Lime wedge",
+      recipe:"1.25 oz Dark Rum\n0.5 oz Lime Juice\n3 oz Ginger Beer",
+      build:["1.25 oz Dark Rum","0.5 oz Lime Juice","3 oz Ginger Beer"]},
+    {n:"Bloody Mary",glass:"Tall Tiki Glass",garnish:"Celery, olive & lime",
+      recipe:"1.25 oz Vodka\n4 oz Bloody Mary Mix",
+      build:["1.25 oz Vodka","4 oz Bloody Mary Mix"]},
+    {n:"Margarita",glass:"Bucket",garnish:"Salt rim & lime wedge",
+      recipe:"1.5 oz Blanco Tequila\n0.75 oz Triple Sec\n0.75 oz Lime Juice",
+      build:["1.5 oz Blanco Tequila","0.75 oz Triple Sec","0.75 oz Lime Juice"]},
+    {n:"Whiskey Sour",glass:"Bucket",garnish:"Cherry & orange",
+      recipe:"1.5 oz Bourbon\n0.75 oz Lemon Juice\n0.75 oz Simple Syrup",
+      build:["1.5 oz Bourbon","0.75 oz Lemon Juice","0.75 oz Simple Syrup"]},
+    {n:"Amaretto Sour",glass:"Bucket",garnish:"Cherry",
+      recipe:"1.5 oz Amaretto\n0.75 oz Lemon Juice\n0.5 oz Simple Syrup",
+      build:["1.5 oz Amaretto","0.75 oz Lemon Juice","0.5 oz Simple Syrup"]},
+    {n:"Daiquiri",glass:"Coupe Glass",garnish:"Lime wheel",
+      recipe:"1.5 oz White Rum\n0.75 oz Lime Juice\n0.5 oz Simple Syrup",
+      build:["1.5 oz White Rum","0.75 oz Lime Juice","0.5 oz Simple Syrup"]},
+    {n:"Gimlet",glass:"Coupe Glass",garnish:"Lime wheel",
+      recipe:"1.5 oz Gin\n0.75 oz Lime Juice\n0.5 oz Simple Syrup",
+      build:["1.5 oz Gin","0.75 oz Lime Juice","0.5 oz Simple Syrup"]},
+    {n:"Cosmopolitan",glass:"Martini Glass",garnish:"Lime wheel",
+      recipe:"1.25 oz Citrus Vodka\n0.5 oz Triple Sec\n0.5 oz Lime Juice\n0.5 oz Cranberry Juice",
+      build:["1.25 oz Citrus Vodka","0.5 oz Triple Sec","0.5 oz Lime Juice","0.5 oz Cranberry Juice"]},
+    {n:"Lemon Drop Martini",glass:"Martini Glass",garnish:"Sugar rim & lemon twist",
+      recipe:"1.5 oz Vodka\n0.5 oz Triple Sec\n0.75 oz Lemon Juice\n0.25 oz Simple Syrup",
+      build:["1.5 oz Vodka","0.5 oz Triple Sec","0.75 oz Lemon Juice","0.25 oz Simple Syrup"]},
+    {n:"Martini",glass:"Martini Glass",garnish:"Olives or lemon twist",
+      recipe:"2.5 oz Gin or Vodka\n0.5 oz Dry Vermouth",
+      build:["2.5 oz Gin or Vodka","0.5 oz Dry Vermouth"]},
+    {n:"Dirty Martini",glass:"Martini Glass",garnish:"Olives",
+      recipe:"2.5 oz Vodka or Gin\n0.5 oz Dry Vermouth\n0.5 oz Olive Brine",
+      build:["2.5 oz Vodka or Gin","0.5 oz Dry Vermouth","0.5 oz Olive Brine"]},
+    {n:"Vesper Martini",glass:"Martini Glass",garnish:"Lemon twist",
+      recipe:"1.5 oz Gin\n0.5 oz Vodka\n0.25 oz Lillet Blanc",
+      build:["1.5 oz Gin","0.5 oz Vodka","0.25 oz Lillet Blanc"]},
+    {n:"Espresso Martini",glass:"Martini Glass",garnish:"3 coffee beans",
+      recipe:"1.25 oz Vodka\n1 oz Cold Brew\n1.5 oz Mr Black\nSquirt of Simple Syrup",
+      build:["1.25 oz Vodka","1 oz Cold Brew","1.5 oz Mr Black","Squirt of Simple Syrup"]},
+    {n:"White Russian",glass:"Bucket",garnish:"—",allergy:"Dairy",
+      recipe:"1.5 oz Vodka\n1 oz Kahlúa\n1 oz Cream",
+      build:["1.5 oz Vodka","1 oz Kahlúa","1 oz Cream"]},
+    {n:"Long Island Iced Tea",glass:"Tall Tiki Glass",garnish:"Lemon wedge",
+      recipe:"0.5 oz Vodka\n0.5 oz Gin\n0.5 oz White Rum\n0.5 oz Tequila\n0.5 oz Triple Sec\n0.75 oz Lemon Juice\nSplash of Coca-Cola",
+      build:["0.5 oz Vodka","0.5 oz Gin","0.5 oz White Rum","0.5 oz Tequila","0.5 oz Triple Sec","0.75 oz Lemon Juice","Splash of Coca-Cola"]},
+    {n:"Piña Colada",glass:"Hurricane Glass",garnish:"Pineapple & cherry",allergy:"Coconut, pineapple",
+      recipe:"1.5 oz White Rum\n2 oz Coco Lopez\n2 oz Pineapple Juice",
+      build:["1.5 oz White Rum","2 oz Coco Lopez","2 oz Pineapple Juice"]},
+    {n:"Aperol Spritz",glass:"Bucket",garnish:"Orange slice",
+      recipe:"3 oz Prosecco\n2 oz Aperol\n1 oz Soda Water",
+      build:["3 oz Prosecco","2 oz Aperol","1 oz Soda Water"]},
+    {n:"Mimosa",glass:"Champagne Flute",garnish:"Orange slice",
+      recipe:"3 oz Sparkling Wine\n3 oz Orange Juice",
+      build:["3 oz Sparkling Wine","3 oz Orange Juice"]},
+    {n:"Hugo Spritz",glass:"Bucket",garnish:"Mint sprig & lime wheel",
+      recipe:"3 oz Prosecco\n1 oz St-Germain\n2 oz Soda Water\nFresh Mint",
+      build:["3 oz Prosecco","1 oz St-Germain","2 oz Soda Water","Fresh Mint"]},
+  ],
+  Shots: [
+    {n:"Kamikaze",glass:"Shot Glass",garnish:"None",
+      recipe:"0.5 oz Vodka\n0.5 oz Triple Sec\n0.5 oz Lime Juice",
+      build:["0.5 oz Vodka","0.5 oz Triple Sec","0.5 oz Lime Juice"]},
+    {n:"Lemon Drop Shot",glass:"Shot Glass",garnish:"Sugar rim",
+      recipe:"0.75 oz Vodka\n0.5 oz Triple Sec\n0.5 oz Lemon Juice\n0.25 oz Simple Syrup",
+      build:["0.75 oz Vodka","0.5 oz Triple Sec","0.5 oz Lemon Juice","0.25 oz Simple Syrup"]},
+    {n:"B-52",glass:"Shot Glass",garnish:"None",
+      recipe:"0.5 oz Kahl\u00faa\n0.5 oz Bailey's\n0.5 oz Grand Marnier",
+      build:["0.5 oz Kahl\u00faa","0.5 oz Bailey's","0.5 oz Grand Marnier"]},
+    {n:"Baby Guinness",glass:"Shot Glass",garnish:"None",
+      recipe:"0.75 oz Kahl\u00faa\n0.25 oz Bailey's (float)",
+      build:["0.75 oz Kahl\u00faa","0.25 oz Bailey's"]},
+    {n:"Green Tea Shot",glass:"Shot Glass",garnish:"None",
+      recipe:"0.5 oz Jameson\n0.5 oz Peach Schnapps\n0.5 oz Lemon Juice\n0.25 oz Simple Syrup\nSplash of Sprite",
+      build:["0.5 oz Jameson","0.5 oz Peach Schnapps","0.5 oz Lemon Juice","0.25 oz Simple Syrup","Splash of Sprite"]},
+    {n:"Chartreuse Shot",glass:"Shot Glass",garnish:"None",
+      recipe:"1 oz Green Chartreuse (chilled, neat)",
+      build:["1 oz Green Chartreuse"]},
+    {n:"Fernet Shot",glass:"Shot Glass",garnish:"None",
+      recipe:"1 oz Fernet-Branca (neat)",
+      build:["1 oz Fernet-Branca"]},
+  ],
+  "Liquor Prices": [
+    {n:"Jim Beam",price:"$10",cat:"Bourbon (well)"},
+    {n:"Buffalo Trace",price:"$12",cat:"Bourbon"},
+    {n:"Maker's Mark",price:"$13",cat:"Bourbon"},
+    {n:"Four Roses",price:"$13",cat:"Bourbon"},
+    {n:"Jack Daniel's",price:"$12",cat:"Tennessee Whiskey"},
+    {n:"Michter's Rye",price:"$16",cat:"Rye"},
+    {n:"Johnnie Walker Red",price:"$14",cat:"Blended Scotch"},
+    {n:"Johnnie Walker Black",price:"$14",cat:"Blended Scotch"},
+    {n:"Johnnie Walker Blue",price:"$40",cat:"Blended Scotch"},
+    {n:"Macallan 12",price:"$17",cat:"Single Malt Scotch"},
+    {n:"Oban 14",price:"$18",cat:"Single Malt Scotch"},
+    {n:"Lagavulin 16",price:"$24",cat:"Single Malt Scotch"},
+    {n:"Macallan 18",price:"$45",cat:"Single Malt Scotch"},
+    {n:"Crown Royal",price:"$14",cat:"Canadian Whisky"},
+    {n:"Jameson",price:"$12",cat:"Irish Whiskey"},
+    {n:"Redbreast",price:"$16",cat:"Irish Whiskey"},
+    {n:"Gordon's",price:"$10",cat:"Vodka (well)"},
+    {n:"Pau Maui",price:"$12",cat:"Vodka"},
+    {n:"Ketel One",price:"$13",cat:"Vodka"},
+    {n:"Tito's",price:"$13",cat:"Vodka"},
+    {n:"Grey Goose",price:"$14",cat:"Vodka"},
+    {n:"Belvedere",price:"$15",cat:"Vodka"},
+    {n:"Bacardi Silver",price:"$10",cat:"Rum (well)"},
+    {n:"Captain Morgan",price:"$11",cat:"Spiced Rum"},
+    {n:"Mahina Dark",price:"$11",cat:"Rum"},
+    {n:"Mahina Platinum",price:"$11",cat:"Rum"},
+    {n:"Malibu",price:"$11",cat:"Coconut Rum"},
+    {n:"Myers's",price:"$12",cat:"Dark Rum"},
+    {n:"Koloa White",price:"$13",cat:"Rum"},
+    {n:"Koloa Dark",price:"$13",cat:"Rum"},
+    {n:"Beefeater",price:"$10",cat:"Gin (well)"},
+    {n:"Tanqueray",price:"$11",cat:"Gin"},
+    {n:"Bombay Sapphire",price:"$13",cat:"Gin"},
+    {n:"Hendrick's",price:"$15",cat:"Gin"},
+    {n:"Astral Blanco",price:"$10",cat:"Tequila Blanco (well)"},
+    {n:"Casamigos",price:"$15",cat:"Tequila Blanco"},
+    {n:"Don Julio Blanco",price:"$16",cat:"Tequila Blanco"},
+    {n:"Fortaleza Blanco",price:"$16",cat:"Tequila Blanco"},
+    {n:"Herradura Reposado",price:"$14",cat:"Tequila Reposado"},
+    {n:"Don Julio Reposado",price:"$16",cat:"Tequila Reposado"},
+    {n:"Fortaleza Reposado",price:"$17",cat:"Tequila Reposado"},
+    {n:"Don Julio Añejo",price:"$17",cat:"Tequila Añejo"},
+    {n:"Fortaleza Añejo",price:"$18",cat:"Tequila Añejo"},
+    {n:"Don Julio 1942",price:"$25",cat:"Tequila Añejo"},
+    {n:"Del Maguey 'Vida'",price:"$13",cat:"Mezcal"},
+    {n:"Christian Bros",price:"$10",cat:"Brandy (well)"},
+    {n:"Hennessy",price:"$14",cat:"Cognac"},
+    {n:"Courvoisier",price:"$15",cat:"Cognac"},
+    {n:"Amaretto Disaronno",price:"$14",cat:"Cordial"},
+    {n:"Amaro Lucano",price:"$12",cat:"Amaro"},
+    {n:"Aperol",price:"$12",cat:"Apéritif"},
+    {n:"Bailey's",price:"$14",cat:"Cordial"},
+    {n:"Campari",price:"$14",cat:"Apéritif"},
+    {n:"Carpano Antica",price:"$14",cat:"Vermouth"},
+    {n:"Chambord",price:"$12",cat:"Cordial"},
+    {n:"Cointreau",price:"$12",cat:"Cordial"},
+    {n:"Fernet Branca",price:"$13",cat:"Amaro"},
+    {n:"Frangelico",price:"$12",cat:"Cordial"},
+    {n:"Grand Marnier",price:"$14",cat:"Cordial"},
+    {n:"Kahlúa",price:"$12",cat:"Cordial"},
+    {n:"Midori",price:"$12",cat:"Cordial"},
+    {n:"Sambuca",price:"$12",cat:"Cordial"},
+    {n:"St. Germain",price:"$14",cat:"Cordial"},
+    {n:"Tuaca",price:"$12",cat:"Cordial"},
+  ],
+  "Beer & Wine": [
+    {n:"Poema Cava",cat:"White Wine",region:"Cava, Spain",notes:"Granny Smith apple, fresh, clean"},
+    {n:"Mohua SB",cat:"White Wine",region:"Marlborough, NZ",notes:"Lime, passionfruit, grapefruit"},
+    {n:"St Supéry",cat:"White Wine",region:"Napa Valley, CA",notes:"Lime, grapefruit, lemon crème, hint of anise"},
+    {n:"La Fiera Pinot Grigio",cat:"White Wine",region:"Della Venezia, Italy",notes:"Green apple, ripe peach, minerality"},
+    {n:"Foxen Chenin Blanc",cat:"White Wine",region:"Santa Maria Valley, CA",notes:"Lemon zest, green apple, pear, melon rind"},
+    {n:"Chamisal Chardonnay",cat:"White Wine",region:"San Luis Obispo, CA",notes:"Lemon zest, honeysuckle, white peach, green apple"},
+    {n:"Chanin Chardonnay",cat:"White Wine",region:"Santa Barbara, CA",notes:"Apple, pear, vanilla, butter"},
+    {n:"Mont Gravet Rosé",cat:"Rosé",region:"Pays d'Oc, France",notes:"Raspberry, strawberry, clean, bright acid"},
+    {n:"Clos Julien PN",cat:"Red Wine",region:"Sonoma Coast, CA",notes:"Cranberry, raspberry, cherry pie"},
+    {n:"Love You Bunches Sangiovese",cat:"Red Wine",region:"Santa Barbara, CA",notes:"Cherries, berries, ruby red grapefruit"},
+    {n:"Cape D'Or Cab",cat:"Red Wine",region:"South Africa",notes:"Dark fruit, spices, licorice"},
+    {n:"Obsidian Cab",cat:"Red Wine",region:"Red Hills Lake County, CA",notes:"Blackberry, cherry, cinnamon"},
+    {n:"Mallea Red Blend",cat:"Red Wine",region:"Santa Barbara, CA",notes:"Wild strawberry, black pepper, spring florals"},
+    {n:"Michelob Ultra",cat:"Draft Beer",region:"St Louis, MO",notes:"Subtle fruity notes, crisp, light, clean"},
+    {n:"Estrella Jalisco",cat:"Draft Beer",region:"Jalisco, Mexico",notes:"Subtle corn, lime, crisp"},
+    {n:"Rancho West Lager",cat:"Draft Beer",region:"Malibu, CA",notes:"Light, crisp, refreshing"},
+    {n:"Duke's Blonde",cat:"Draft Beer",region:"Escondido, CA",notes:"Crisp, light malt, refreshing"},
+    {n:"Big Rock Amber",cat:"Draft Beer",region:"Malibu, CA",notes:"Malty, caramel, honey, chocolate"},
+    {n:"Madewest Hazy IPA",cat:"Draft Beer",region:"Ventura, CA",notes:"Hoppy, peaches, mango"},
+    {n:"Big Swell IPA",cat:"Draft Beer",region:"Maui, HI",notes:"Tropical, piney, citrus"},
+    {n:"Stone Delicious IPA",cat:"Draft Beer",region:"Escondido, CA",notes:"Hoppy, citrus, lemongrass"},
+    {n:"Austin Eastciders Pineapple",cat:"Canned",region:"Austin, TX",notes:"Tropical, pineapple, apple, semi-sweet"},
+    {n:"Ashland Hard Seltzer",cat:"Canned",region:"Cardiff, CA",notes:"Blackberry lemonade"},
+    {n:"Junshine Kombucha",cat:"Canned",region:"San Diego, CA",notes:"Passionfruit, orange, guava"},
+    {n:"Upside Dawn N/A Blonde Ale",cat:"Canned",region:"San Diego, CA",notes:"Floral, light-bodied, earthy"},
+  ]
+};
+const METHODS={
+  // Featured
+  "Duke's Mai Tai":"Add all to a shaker with ice, shake, and pour into the tiki mug. Garnish.",
+  "Lava Flow":"Blend white rum, Coco Lopez, and pineapple with ice. Pour strawberry purée into the bottom of the glass, then pour the blended mix over so it swirls up. Optional $3 dark rum float.",
+  "Raspberry Mojito":"Muddle raspberries into the mint mix. Add rum, build over ice, top with club soda, and stir gently. Garnish.",
+  "Lavender Yuzu Lemonade":"Build vodka, sake, lavender, and lemon over ice. Top with club soda and stir gently. Garnish.",
+  "Lychee Martini":"Shake all with ice and strain into a chilled coupe. Garnish.",
+  "Hawaiian Mule":"Build vodka, lime, and pineapple over ice. Top with ginger beer and stir. Garnish.",
+  "Duke's Old Fashioned":"Stir all with ice until chilled, then strain over a large ice cube. Garnish.",
+  "Duke's Tiki Old Fashioned":"Stir all with ice until chilled, then strain over a large ice cube. Garnish.",
+  "Spicy Cucumber Margarita":"Shake all with ice, then strain over fresh ice into a Tajín-rimmed glass. Garnish.",
+  "PPOG Slushie w/ Tito's":"Fill glass with equal parts fresh PPOG and PPOG slushie mix. Pour the spirit over the top. Garnish.",
+  "Volcano (Virgin Lava Flow)":"Blend Coco Lopez and pineapple with ice. Pour strawberry purée into the bottom of the glass, then the blended mix over. Garnish.",
+  "Raspberry Fizz":"Muddle raspberries into the mint mix, build over ice, then top with club soda and Sprite. Garnish.",
+  "PPOG Slushie Virgin":"Serve fresh PPOG juice over ice (or frozen). Garnish.",
+  // Tiki
+  "Blue Hawaii":"Shake all with ice, then strain over fresh ice into a hurricane glass. Garnish.",
+  "Blue Hawaiian":"Shake all with ice, then strain over fresh ice into a hurricane glass. Garnish.",
+  "Hurricane":"Shake all with ice, then strain over fresh ice. Garnish.",
+  "Jungle Bird":"Shake all with ice, then strain over fresh ice into a tiki glass. Garnish.",
+  "Painkiller":"Shake all with ice, then pour into a tiki glass. Garnish (grate nutmeg on top).",
+  "Rum Runner":"Shake all with ice, then strain over fresh ice. Garnish.",
+  "Scorpion":"Shake all with ice, then strain over fresh ice into a tiki glass. Garnish.",
+  "Trader Vic's Mai Tai":"Shake light rum, orgeat, and lime with ice; pour over crushed ice. Float dark rum on top. Garnish.",
+  // Classics
+  "Manhattan":"Stir with ice until chilled, then strain into a chilled martini glass. Garnish.",
+  "Martinez":"Stir with ice until chilled, then strain into a chilled martini glass. Garnish.",
+  "Negroni":"Build over ice and stir until chilled. Garnish.",
+  "Old Fashioned":"Stir with ice until chilled, then strain over a large cube. Garnish.",
+  "Paloma":"Build over ice in a salt-rimmed glass and stir. Garnish.",
+  "Sea Breeze":"Build over ice and stir. Garnish.",
+  "Sidecar":"Shake with ice, then strain into a chilled, sugar-rimmed glass. Garnish.",
+  "Tequila Sunrise":"Build tequila and OJ over ice. Slowly pour grenadine so it sinks (float) — do not stir. Garnish.",
+  "Tom Collins":"Build gin, lemon, and syrup over ice. Top with soda and stir gently. Garnish.",
+  "Last Word":"Shake all with ice, then strain into a chilled coupe. Garnish. (Equal parts — gin, green Chartreuse, maraschino, lime.)",
+  "The Great Pretender":"Rim a coupe with cinnamon-sugar. Shake the remaining ingredients with ice and strain into the coupe. No garnish.",
+  "The Gift Shop":"Muddle the cucumber wheels in a shaker, add the remaining ingredients, and shake with ice. Double-strain into a double rocks glass over one large cube. Fan the cucumber wheels on top.",
+  "Boulevardier":"Stir all with ice until well chilled, then strain into a chilled coupe. Garnish with a lemon twist.",
+  "Caipirinha":"Muddle the lime wedges with the simple syrup and sugar cube in a shaker. Add the cacha\u00e7a (or white rum), shake with ice, and dump \u2014 ice and all \u2014 into a double rocks glass. No garnish.",
+  "Champs-\u00c9lys\u00e9es":"Shake all with ice, then strain into a chilled coupe. Garnish with a lemon twist.",
+  "Fancy-Free":"Stir all with ice, then strain over one large cube in a double rocks glass. Garnish with an orange twist.",
+  "Fitzgerald":"Shake all with ice, then strain into a double rocks glass. Garnish with a lemon wedge.",
+  "French 75":"Shake everything except the champagne with ice, double-strain into a flute, top with champagne, and garnish with a lemon twist.",
+  "French 95":"Short-shake everything except the champagne with a few ice cubes, strain into a glass over fresh ice, and top with champagne. No garnish.",
+  "Gin Fizz":"Dry-shake everything except the club soda, then shake again with ice. Double-strain into a fizz glass and top with club soda. No garnish.",
+  "Gin Rickey":"Short-shake everything except the club soda with a few ice cubes, strain into a highball filled with ice, top with club soda, and garnish with a lime wedge.",
+  "Hanky-Panky":"Stir all with ice, then strain into a chilled Nick & Nora (or coupe). Garnish with a lemon twist.",
+  "Honeysuckle":"Shake all with ice, then strain into a chilled coupe. Garnish with a lime wedge.",
+  "Lucien Gaudin":"Stir all with ice, then strain into a chilled Nick & Nora (or coupe). Garnish with a lemon twist.",
+  "Mexican Firing Squad":"Fill a highball with cracked ice. Short-shake all with a few ice cubes, strain into the glass, garnish with a lime wheel and cherry, and serve with a straw.",
+  "Old Pal":"Stir all with ice, then strain into a chilled Nick & Nora (or coupe). Garnish with a lemon twist.",
+  "Rob Roy":"Stir all with ice until well chilled, then strain into a chilled coupe. Garnish with a cherry.",
+  "South Side":"Gently muddle the mint in a shaker, add the remaining ingredients, shake with ice, and strain into a chilled coupe. Garnish with a mint leaf.",
+  "Tailspin":"Rinse a coupe with Campari and dump it out. Stir the remaining ingredients over ice, strain into the coupe, and garnish with a lemon twist.",
+  // Standards
+  "Screwdriver":"Build over ice and stir. Garnish.",
+  "Vodka Soda":"Build over ice and top with soda water. Garnish.",
+  "Vodka Tonic":"Build over ice and top with tonic. Garnish.",
+  "Gin & Tonic":"Build over ice and top with tonic. Garnish.",
+  "Rum & Coke":"Build over ice and top with cola. Garnish.",
+  "Cuba Libre":"Build rum and lime over ice, then top with cola. Garnish.",
+  "Jack & Coke":"Build over ice and top with cola. Garnish.",
+  "Whiskey Ginger":"Build over ice and top with ginger ale. Garnish.",
+  "7 & 7":"Build over ice and top with 7UP. Garnish.",
+  "Greyhound":"Build over ice and stir. Garnish. (Salt the rim for a Salty Dog.)",
+  "Cape Codder":"Build over ice and stir. Garnish.",
+  "Madras":"Build over ice and stir. Garnish.",
+  "Sex on the Beach":"Build over ice and stir. Garnish.",
+  "Moscow Mule":"Build vodka and lime over ice in a copper mug, top with ginger beer, and stir. Garnish.",
+  "Dark & Stormy":"Fill glass with ice, add lime and ginger beer, then float dark rum on top. Garnish.",
+  "Bloody Mary":"Build over ice and stir gently (or roll between two glasses). Garnish heavily.",
+  "Margarita":"Shake with ice, then strain over fresh ice into a salt-rimmed glass. Garnish.",
+  "Whiskey Sour":"Shake with ice (dry-shake first if using egg white), then strain over fresh ice. Garnish.",
+  "Amaretto Sour":"Shake with ice, then strain over fresh ice. Garnish.",
+  "Daiquiri":"Shake with ice, then strain into a chilled coupe. Garnish.",
+  "Gimlet":"Shake with ice, then strain into a chilled coupe. Garnish.",
+  "Cosmopolitan":"Shake with ice, then strain into a chilled martini glass. Garnish.",
+  "Lemon Drop Martini":"Shake with ice, then strain into a chilled, sugar-rimmed glass. Garnish.",
+  "Martini":"Stir with ice until well chilled, then strain into a chilled martini glass. Garnish. (Shake if the guest asks.)",
+  "Dirty Martini":"Stir (or shake) with ice and olive brine, then strain into a chilled glass. Garnish.",
+  "Vesper Martini":"Shake with ice, then strain into a chilled martini glass. Garnish with a lemon twist.",
+  "Espresso Martini":"Dry-shake with no ice, then shake hard with ice and strain into a chilled martini glass. Garnish with coffee beans.",
+  "White Russian":"Build vodka and Kahlúa over ice, then top with cream and stir gently.",
+  "Long Island Iced Tea":"Build all spirits, triple sec, and lemon over ice; top with a splash of cola. Garnish.",
+  "Piña Colada":"Blend rum, Coco Lopez, and pineapple with ice, then pour into the glass. Garnish.",
+  "Aperol Spritz":"Build over ice — prosecco, then Aperol, then a splash of soda. Stir gently. Garnish.",
+  "Mimosa":"Pour orange juice into a flute, then top gently with sparkling wine. Garnish.",
+  "Hugo Spritz":"Build over ice — St-Germain, then prosecco, then top with soda. Gently slap the mint and drop it in, stir once. Garnish.",
+  "Pink Purr Baby":"Dry-shake everything hard with no ice to build foam, then shake again with ice and fine-strain into a chilled coupe. Garnish.",
+};
+
+const $=s=>document.querySelector(s);
+function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+function typeOf(it){if(it.recipe!==undefined)return"cocktail";if(it.region!==undefined)return"bw";return"liquor"}
+
+// flatten with category tag
+const CATKEYS=["My Drinks","Featured","Tiki","Classics","Standards","Shots","Liquor Prices","Beer & Wine"];
+let ITEMS=[];
+CATKEYS.forEach(k=>DATA[k].forEach(it=>ITEMS.push(Object.assign({_cat:k},it))));
+const COCKTAILS=[...DATA["My Drinks"],...DATA.Featured,...DATA.Tiki,...DATA.Classics,...DATA.Standards,...DATA.Shots];
+
+// stats
+$("#homeStats").textContent=`${COCKTAILS.length} cocktails · ${DATA["Liquor Prices"].length} spirits · ${DATA["Beer & Wine"].length} beer & wine`;
+
+// ---------- favorites (persisted, with safe fallback) ----------
+const store={
+  _m:{},
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return (k in this._m)?this._m[k]:d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){this._m[k]=v}}
+};
+let favs=new Set(store.get("dukes_favs",[]));
+function isFav(n){return favs.has(n)}
+function toggleFav(n){favs.has(n)?favs.delete(n):favs.add(n);store.set("dukes_favs",[...favs])}
+
+// ---------- navigation ----------
+function show(screen){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===screen));
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
+  const dest=b.dataset.go;
+  if(dest==="faves"){ bookFav=true; bookCat=null; renderBookChips(); show("book"); renderBook(); }
+  else if(dest==="book"){ bookFav=false; bookCat=null; renderBookChips(); show("book"); renderBook(); }
+  else if(dest==="study"){ show("study"); resetStudy(); }
+  else show("home");
+});
+
+/* =================== BOOK =================== */
+const KIND={"My Drinks":"m",Featured:"f",Tiki:"t",Classics:"c",Standards:"s",Shots:"sh"};
+const KINDLABEL={"My Drinks":"Mine",Featured:"Featured",Tiki:"Tiki",Classics:"Classic",Standards:"Standard",Shots:"Shot","Liquor Prices":"Spirit","Beer & Wine":"Beer/Wine"};
+const BOOK_FILTERS=[["All",null],["Cocktails","cocktail"],["My Drinks","My Drinks"],["Standards","Standards"],["Shots","Shots"],["Featured","Featured"],["Tiki","Tiki"],["Classics","Classics"],["Spirits","Liquor Prices"],["Beer & Wine","Beer & Wine"]];
+let bookCat=null, bookFav=false, bookSort="az", bookQuery="", openName=null;
+
+const FAMILY_ORDER=["Bourbon","Whiskey","Scotch","Vodka","Gin","Tequila & Mezcal","Rum","Brandy & Cognac","Liqueurs & Apéritifs"];
+function spiritFamily(cat){
+  const c=(cat||"").toLowerCase();
+  if(c.includes("bourbon"))return"Bourbon";
+  if(c.includes("scotch"))return"Scotch";
+  if(c.includes("rye")||c.includes("tennessee")||c.includes("irish")||c.includes("canadian")||c.includes("whisk"))return"Whiskey";
+  if(c.includes("vodka"))return"Vodka";
+  if(c.includes("gin"))return"Gin";
+  if(c.includes("tequila")||c.includes("mezcal"))return"Tequila & Mezcal";
+  if(c.includes("rum"))return"Rum";
+  if(c.includes("cognac")||c.includes("brandy"))return"Brandy & Cognac";
+  return"Liqueurs & Apéritifs";
+}
+function glabel(k){return k==="Liquor Prices"?"Spirits":k}
+function byName(a,b){return a.n.localeCompare(b.n)}
+function buildSections(items){
+  if(bookSort!=="type")return null;
+  const secs=[];
+  const pushFamilies=arr=>FAMILY_ORDER.forEach(f=>{const g=arr.filter(it=>spiritFamily(it.cat)===f).sort(byName);if(g.length)secs.push({label:f,items:g})});
+  if(bookCat===null){
+    CATKEYS.forEach(k=>{
+      const grp=items.filter(it=>it._cat===k);
+      if(!grp.length)return;
+      if(k==="Liquor Prices")pushFamilies(grp);
+      else secs.push({label:glabel(k),items:grp.sort(byName)});
+    });
+  } else if(bookCat==="Liquor Prices"){
+    pushFamilies(items);
+  } else if(bookCat==="cocktail"){
+    ["My Drinks","Featured","Tiki","Classics","Standards","Shots"].forEach(k=>{const g=items.filter(it=>it._cat===k).sort(byName);if(g.length)secs.push({label:k,items:g})});
+  } else {
+    secs.push({label:glabel(bookCat),items:items.slice().sort(byName)});
+  }
+  return secs;
+}
+
+function renderBookChips(){
+  const c=$("#bookChips"); c.innerHTML="";
+  BOOK_FILTERS.forEach(([label,val])=>{
+    const b=document.createElement("button");
+    b.className="chip"+((bookCat===val)?" active":""); b.textContent=label;
+    b.onclick=()=>{bookCat=val;renderBookChips();renderBook()};
+    c.appendChild(b);
+  });
+  $("#bookFavBtn").classList.toggle("on",bookFav);
+}
+$("#bookFavBtn").onclick=()=>{bookFav=!bookFav;renderBookChips();renderBook()};
+$("#sortSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  bookSort=b.dataset.sort;
+  $("#sortSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
+  renderBook();
+});
+
+function matchBookCat(it){
+  if(bookCat===null)return true;
+  if(bookCat==="cocktail")return typeOf(it)==="cocktail";
+  return it._cat===bookCat;
+}
+function matchQuery(it,q){
+  if(!q)return true; q=q.toLowerCase();
+  return [it.n,it.recipe,it.cat,it.notes,it.region].some(x=>x&&x.toLowerCase().includes(q));
+}
+function hl(text,q){
+  if(!q)return esc(text);
+  q=q.toLowerCase(); const lt=text.toLowerCase(); let out="",i=0;
+  while(true){const idx=lt.indexOf(q,i);if(idx<0){out+=esc(text.slice(i));break}out+=esc(text.slice(i,idx))+"<mark>"+esc(text.slice(idx,idx+q.length))+"</mark>";i=idx+q.length}
+  return out;
+}
+function parseIng(line){
+  const noteM=line.match(/\(([^)]+)\)/); const note=noteM?noteM[1]:"";
+  let body=line.replace(/\s*\([^)]*\)/,"").trim();
+  const m=body.match(/^([\d.]+\s*(?:oz|dash(?:es)?|tsp)|Equal parts|Top with|[\d.]+)\b\s*(.*)$/i);
+  if(m)return{amt:m[1].replace(/\s+/,' '),nm:m[2],note};
+  return{amt:"",nm:body,note};
+}
+function buildDetail(it){
+  const t=typeOf(it);
+  if(t==="cocktail"){
+    const lines=it.recipe.split("\n").filter(l=>l.trim());
+    const real=lines.filter(l=>!/—\s*N\/A/.test(l)); const naLine=lines.find(l=>/—\s*N\/A/.test(l));
+    const parsed=real.map(parseIng); const ings=parsed.filter(p=>p.nm); const notes=parsed.filter(p=>!p.nm&&p.note);
+    return `<div class="specrow">
+        <div class="spec"><div class="l">Glass</div><div class="v">${esc(it.glass)}</div></div>
+        <div class="spec"><div class="l">Garnish</div><div class="v">${esc(it.garnish)}</div></div></div>
+      <div class="ing-lbl">Build</div>
+      ${ings.map(g=>`<div class="ing"><span class="amt">${esc(g.amt)||"—"}</span><span class="nm">${esc(g.nm)}${g.note?`<span class="note"> · ${esc(g.note)}</span>`:""}</span></div>`).join("")}
+      ${notes.map(p=>`<div class="notes-line" style="color:var(--gold);margin-top:8px">💡 ${esc(p.note)}</div>`).join("")}
+      ${METHODS[it.n]?`<div class="ing-lbl">Method</div><div class="notes-line">${esc(METHODS[it.n])}</div>`:""}
+      ${naLine?`<div class="notes-line" style="color:var(--leaf);margin-top:10px">🚫 Non-alcoholic</div>`:""}
+      ${it.allergy&&it.allergy!=="—"?`<div class="allergy"><b>Allergy</b><br>${esc(it.allergy)}</div>`:""}
+      ${it.special?`<div class="offrail-note"><b>\u2691 Off Duke\u2019s rail</b><br>Needs: ${esc(it.special)}</div>`:""}`;
+  }
+  if(t==="liquor"){
+    const base=parseInt(it.price.replace("$",""))||0;
+    return `<div class="specrow">
+        <div class="spec"><div class="l">Single Pour</div><div class="v" style="color:var(--gold);font-size:22px">${esc(it.price)}</div></div>
+        <div class="spec"><div class="l">Double</div><div class="v" style="font-size:22px">$${base*2}</div></div></div>
+      <div class="notes-line">${esc(it.cat)}</div>`;
+  }
+  return `<div class="specrow">
+      <div class="spec"><div class="l">Type</div><div class="v">${esc(it.cat)}</div></div>
+      <div class="spec"><div class="l">Origin</div><div class="v">${esc(it.region)}</div></div></div>
+    <div class="ing-lbl">Tasting Notes</div><div class="notes-line">${esc(it.notes)}</div>`;
+}
+function rowHTML(it,q){
+  const t=typeOf(it);
+  const kcls=KIND[it._cat]||(t==="liquor"?"s":"");
+  let klabel=KINDLABEL[it._cat]||"";
+  if(t==="liquor")klabel=(it.cat||"Spirit").replace(/\s*\(well\)/i,"");
+  else if(t==="bw")klabel=it.cat||"Beer/Wine";
+  const meta=(t==="liquor"||it.price)?`<span class="price">${esc(it.price)}</span>`:"";
+  const open=it.n===openName, fav=isFav(it.n);
+  return `<div class="row${open?" open":""}" data-name="${esc(it.n)}">
+    <div class="rowhead">
+      <button class="star${fav?" on":""}" data-fav="${esc(it.n)}">${fav?"★":"☆"}</button>
+      <span class="kind ${kcls}">${esc(klabel)}</span>
+      <span class="name">${hl(it.n,q)}${it.special?' <span class="offrail">\u2691</span>':""}</span>${meta}
+      <span class="chev">▼</span>
+    </div>
+    <div class="detail"><div class="detail-in">${open?buildDetail(it):""}</div></div>
+  </div>`;
+}
+function renderBook(){
+  const q=bookQuery;
+  let items=ITEMS.filter(it=>matchBookCat(it)&&matchQuery(it,q));
+  if(bookFav)items=items.filter(it=>isFav(it.n));
+  $("#bookCount").textContent=items.length+(items.length===1?" result":" results")+(bookFav?" · ★ favorites":"");
+  const box=$("#bookResults");
+  if(items.length===0){
+    box.innerHTML=`<div class="empty"><div class="big">${bookFav?"⭐":"🍹"}</div>${bookFav?"No favorites yet.<br>Tap the ☆ on any drink to save it here.":"No drink found.<br>Try a different name or ingredient."}</div>`;
+    return;
+  }
+  const secs=buildSections(items);
+  if(secs){
+    box.innerHTML=secs.map(s=>`<div class="grouphead">${esc(s.label)}</div>`+s.items.map(it=>rowHTML(it,q)).join("")).join("");
+  } else {
+    box.innerHTML=items.slice().sort((a,b)=>a.n.localeCompare(b.n)).map(it=>rowHTML(it,q)).join("");
+  }
+  // handlers
+  box.querySelectorAll(".star").forEach(s=>s.onclick=e=>{e.stopPropagation();toggleFav(s.dataset.fav);renderBook()});
+  box.querySelectorAll(".row").forEach(row=>{
+    row.querySelector(".rowhead").onclick=e=>{
+      if(e.target.closest(".star"))return;
+      const nm=row.dataset.name; openName=(openName===nm)?null:nm; renderBook();
+      if(openName===nm){const el=box.querySelector(`.row[data-name="${nm.replace(/"/g,'\\"')}"]`);if(el)setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"nearest"}),60)}
+    };
+  });
+}
+const search=$("#search"), clearBtn=$("#clear");
+search.addEventListener("input",()=>{bookQuery=search.value.trim();clearBtn.classList.toggle("show",!!bookQuery);openName=null;renderBook()});
+clearBtn.onclick=()=>{search.value="";bookQuery="";clearBtn.classList.remove("show");search.focus();renderBook()};
+renderBookChips();
+
+/* =================== STUDY =================== */
+const SCATS=["All","My Drinks","Featured","Tiki","Classics","Standards","Shots","Liquor Prices","Beer & Wine"];
+let mode="cards", scat="All", idx=0, deck=[];
+function catItems(cat){
+  if(cat==="★ Faves")return ITEMS.filter(it=>isFav(it.n));
+  if(cat==="All")return ITEMS;
+  return DATA[cat]||[];
+}
+const studyChips=$("#studyChips");
+function renderStudyChips(){
+  studyChips.innerHTML="";
+  SCATS.forEach(c=>{
+    const b=document.createElement("button");
+    b.className="chip"+((c===scat)?" active":"");
+    b.textContent=c==="Liquor Prices"?"Spirits":c;
+    b.onclick=()=>{scat=c;renderStudyChips();resetStudy()};
+    studyChips.appendChild(b);
+  });
+  $("#studyFavBtn").classList.toggle("on",scat==="★ Faves");
+}
+$("#studyFavBtn").onclick=()=>{scat=(scat==="★ Faves")?"All":"★ Faves";renderStudyChips();resetStudy()};
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  mode=t.dataset.mode;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===t));
+  $("#cardsView").classList.toggle("hidden",mode!=="cards");
+  $("#quizView").classList.toggle("hidden",mode!=="quiz");
+  $("#buildView").classList.toggle("hidden",mode!=="build");
+  resetStudy();
+});
+function resetStudy(){ idx=0; if(mode==="build"){startBuild();return} deck=shuffle(catItems(scat)); if(mode==="cards")renderCard(); else startQuiz(); }
+
+// ---- flashcards
+const card=$("#card");
+function renderCard(){
+  if(!deck.length){$("#front").innerHTML=`<div class="tag">Empty</div><div class="q-name">Nothing here yet</div><div class="hint">star some drinks to study faves</div>`;$("#back").innerHTML="";$("#cardCount").textContent="0 / 0";$("#cardProg").style.width="0%";return}
+  card.classList.remove("flip");
+  const it=deck[idx], t=typeOf(it); let frontTag, back;
+  if(t==="cocktail"){
+    const cn=it._cat||(DATA["My Drinks"].includes(it)?"My Drinks":DATA.Featured.includes(it)?"Featured":DATA.Tiki.includes(it)?"Tiki":DATA.Classics.includes(it)?"Classics":DATA.Standards.includes(it)?"Standards":DATA.Shots.includes(it)?"Shots":"");
+    frontTag=it.price?("Featured · "+it.price):cn==="My Drinks"?"My Drink":cn==="Tiki"?"Tiki Cocktail":cn==="Classics"?"Classic Cocktail":cn==="Standards"?"Bar Standard":cn==="Shots"?"Shot":"Cocktail";
+    back=`<div class="tag">Recipe — ${esc(it.n)}</div>
+      <div class="detailc"><div class="lbl">Glass</div><div class="val">${esc(it.glass)}</div></div>
+      <div class="detailc"><div class="lbl">Garnish</div><div class="val">${esc(it.garnish)}</div></div>
+      ${it.allergy&&it.allergy!=="—"?`<div class="detailc"><div class="lbl">Allergy</div><div class="val">${esc(it.allergy)}</div></div>`:""}
+      <div class="detailc"><div class="lbl">Build</div><div class="recipe">${esc(it.recipe)}</div></div>
+      ${METHODS[it.n]?`<div class="detailc"><div class="lbl">Method</div><div class="val">${esc(METHODS[it.n])}</div></div>`:""}`;
+  } else if(t==="liquor"){
+    frontTag=it.cat;
+    back=`<div class="tag">${esc(it.cat)}</div>
+      <div class="detailc"><div class="lbl">Pour</div><div class="val" style="font-size:34px;font-weight:800;color:var(--gold)">${esc(it.price)}</div></div>
+      <div class="detailc"><div class="lbl">Double</div><div class="val">$${(parseInt(it.price.slice(1))||0)*2}</div></div>`;
+  } else {
+    frontTag=it.cat;
+    back=`<div class="tag">${esc(it.cat)}</div>
+      <div class="detailc"><div class="lbl">Region</div><div class="val">${esc(it.region)}</div></div>
+      <div class="detailc"><div class="lbl">Tasting Notes</div><div class="val">${esc(it.notes)}</div></div>`;
+  }
+  $("#front").innerHTML=`<div class="tag">${esc(frontTag)}</div><div class="q-name">${esc(it.n)}</div><div class="hint">tap to flip ↻</div>`;
+  $("#back").innerHTML=back;
+  $("#cardCount").textContent=`${idx+1} / ${deck.length}`;
+  $("#cardProg").style.width=((idx+1)/deck.length*100)+"%";
+}
+card.onclick=()=>card.classList.toggle("flip");
+$("#flip").onclick=e=>{e.stopPropagation();card.classList.toggle("flip")};
+$("#next").onclick=()=>{if(deck.length){idx=(idx+1)%deck.length;renderCard()}};
+$("#prev").onclick=()=>{if(deck.length){idx=(idx-1+deck.length)%deck.length;renderCard()}};
+
+// ---- quiz
+let qList=[],qPos=0,score=0;
+function firstSpirit(r){return r.split("\n")[0].replace(/^[\d.\s]+oz\s*/i,"").replace(/\s*\(.*\)/,"").trim()}
+function uniqPrices(pool,exc){return[...new Set(pool.map(x=>x.price).filter(p=>p&&p!==exc))]}
+function mc(q,sub,correct,wrongs){wrongs=[...new Set(wrongs.filter(w=>w&&w!==correct))];return{q,sub,correct,opts:shuffle([correct,...shuffle(wrongs).slice(0,3)])}}
+function makeQuestions(){
+  const pool=catItems(scat); const qs=[];
+  pool.forEach(it=>{
+    const t=typeOf(it);
+    if(t==="cocktail"){
+      qs.push(mc(`What's the glassware for the ${it.n}?`,it.price||"",it.glass,pool.filter(x=>x.glass&&x.glass!==it.glass).map(x=>x.glass)));
+      if(it.price)qs.push(mc(`What's the price of the ${it.n}?`,"",it.price,["$10","$11","$15","$16","$17","$13"].filter(p=>p!==it.price)));
+      const others=pool.filter(x=>x.recipe&&x.n!==it.n);
+      qs.push(mc(`Which is a key ingredient in the ${it.n}?`,it.glass,firstSpirit(it.recipe),others.map(x=>firstSpirit(x.recipe)).filter(Boolean)));
+    } else if(t==="liquor"){
+      qs.push(mc(`What's the pour price of ${it.n}?`,it.cat,it.price,uniqPrices(pool,it.price)));
+    } else {
+      qs.push(mc(`What region is ${it.n} from?`,it.cat,it.region,pool.filter(x=>x.region&&x.region!==it.region).map(x=>x.region)));
+      qs.push(mc(`What category is ${it.n}?`,it.region,it.cat,pool.filter(x=>x.cat!==it.cat).map(x=>x.cat)));
+    }
+  });
+  return shuffle(qs).slice(0,20);
+}
+function startQuiz(){qList=makeQuestions();qPos=0;score=0;renderQ()}
+function renderQ(){
+  if(!qList.length){$("#quizBody").innerHTML=`<div class="quiz-card"><div class="qcat">Quiz</div><div class="qtext">Nothing to quiz here.<small>Star some drinks or pick another category.</small></div></div>`;$("#quizProg").style.width="0%";return}
+  if(qPos>=qList.length)return showResults();
+  const q=qList[qPos];
+  $("#qNum").textContent=qPos+1;$("#qScore").textContent=score;$("#quizProg").style.width=(qPos/qList.length*100)+"%";
+  $("#quizBody").innerHTML=`<div class="quiz-card">
+    <div class="qtext">${esc(q.q)}${q.sub?`<small>${esc(q.sub)}</small>`:""}</div>
+    <div class="opts">${q.opts.map(o=>`<button class="opt">${esc(o)}</button>`).join("")}</div>
+    <div class="feedback" id="fb"></div>
+    <div class="next-wrap hidden" id="nw"><button class="btn primary" id="nextQ">Next →</button></div></div>`;
+  $("#quizBody").querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(b,q));
+}
+function answer(btn,q){
+  const ok=btn.textContent===q.correct;
+  $("#quizBody").querySelectorAll(".opt").forEach(b=>{b.disabled=true;if(b.textContent===q.correct)b.classList.add("correct");else if(b===btn)b.classList.add("wrong")});
+  const fb=$("#fb");
+  if(ok){score++;$("#qScore").textContent=score;fb.textContent="Correct 🌺";fb.className="feedback ok"}
+  else{fb.textContent=`Nope — it's ${q.correct}`;fb.className="feedback no"}
+  $("#nw").classList.remove("hidden");$("#nextQ").onclick=()=>{qPos++;renderQ()};
+}
+function showResults(){
+  const pct=Math.round(score/qList.length*100);
+  const msg=pct>=90?"Bar-ready. 🍹":pct>=70?"Solid — tighten the misses.":pct>=50?"Getting there. Run it again.":"Back to the flashcards, then retry.";
+  $("#quizProg").style.width="100%";
+  $("#quizBody").innerHTML=`<div class="quiz-card results"><div class="big">${pct}%</div><p>${score} / ${qList.length} correct<br>${msg}</p><button class="btn primary" id="again">Run it again</button></div>`;
+  $("#again").onclick=startQuiz;
+}
+
+// ---- build
+let bList=[],bPos=0,bScore=0,bState=null;
+const ALL_ING=[...new Set(COCKTAILS.flatMap(c=>c.build))];
+const ALL_GLASS=[...new Set(COCKTAILS.map(c=>c.glass))];
+const ALL_GARN=[...new Set(COCKTAILS.map(c=>c.garnish))];
+function cocktailPool(){
+  let base;
+  if(scat==="★ Faves")base=ITEMS.filter(it=>isFav(it.n));
+  else if(scat==="All"||!DATA[scat])base=COCKTAILS;
+  else base=DATA[scat];
+  return base.filter(c=>c.build&&c.build.length>=2);
+}
+function startBuild(){
+  bList=shuffle(cocktailPool()); bPos=0;bScore=0;
+  if(!bList.length){$("#buildProg").style.width="0%";$("#bNum").textContent="0";$("#bScore").textContent="0";
+    $("#buildBody").innerHTML=`<div class="build-card"><div class="build-sub">Build Mode</div><div class="build-head" style="font-size:22px">No cocktails here</div><p style="color:var(--muted);margin-top:12px;font-size:14px;line-height:1.5">Pick a cocktail category (or star a few drinks) to build.</p></div>`;return}
+  renderBuild();
+}
+function renderBuild(){
+  if(bPos>=bList.length)return buildResults();
+  const c=bList[bPos];
+  bState={added:[],glass:null,garnish:null,checked:false};
+  $("#bNum").textContent=bPos+1;$("#bScore").textContent=bScore;$("#buildProg").style.width=(bPos/bList.length*100)+"%";
+  const decoys=shuffle(ALL_ING.filter(i=>!c.build.includes(i))).slice(0,5);
+  const tiles=shuffle([...c.build,...decoys]);
+  const glassOpts=shuffle([c.glass,...shuffle(ALL_GLASS.filter(g=>g!==c.glass)).slice(0,3)]);
+  const garnOpts=shuffle([c.garnish,...shuffle(ALL_GARN.filter(g=>g!==c.garnish)).slice(0,3)]);
+  $("#buildBody").innerHTML=`<div class="build-card">
+    <div class="build-sub">Build the drink${c.price?" · "+esc(c.price):""}</div>
+    <div class="build-head">${esc(c.n)}</div>
+    <div class="section-lbl">Your Pour</div><div class="glassbox empty" id="glassbox"></div>
+    <div class="section-lbl">Ingredients — tap to add</div>
+    <div class="tiles2" id="tiles">${tiles.map(t=>`<button class="tile2" data-ing="${esc(t)}">${esc(t)}</button>`).join("")}</div>
+    <div class="section-lbl">Glassware</div>
+    <div class="grid2" id="glassOpts">${glassOpts.map(g=>`<button class="opt" data-glass="${esc(g)}">${esc(g)}</button>`).join("")}</div>
+    <div class="section-lbl">Garnish</div>
+    <div class="opts" id="garnOpts">${garnOpts.map(g=>`<button class="opt" data-garnish="${esc(g)}">${esc(g)}</button>`).join("")}</div>
+    <div style="height:18px"></div>
+    <button class="btn primary" id="checkBuild">Check My Build</button>
+    <div id="buildReveal"></div></div>`;
+  $("#tiles").querySelectorAll(".tile2").forEach(b=>b.onclick=()=>toggleIng(b));
+  $("#glassOpts").querySelectorAll(".opt").forEach(b=>b.onclick=()=>pickOne("glass",b,"#glassOpts"));
+  $("#garnOpts").querySelectorAll(".opt").forEach(b=>b.onclick=()=>pickOne("garnish",b,"#garnOpts"));
+  $("#checkBuild").onclick=()=>checkBuild(c);
+}
+function toggleIng(btn){
+  if(bState.checked)return;
+  const ing=btn.dataset.ing;
+  if(bState.added.includes(ing)){bState.added=bState.added.filter(x=>x!==ing);btn.classList.remove("used")}
+  else{bState.added.push(ing);btn.classList.add("used")}
+  drawPour();
+}
+function drawPour(){
+  const gb=$("#glassbox"); gb.classList.toggle("empty",!bState.added.length);
+  gb.innerHTML=bState.added.map(ing=>`<span class="pour" data-ing="${esc(ing)}">${esc(ing)} <span class="x">×</span></span>`).join("");
+  gb.querySelectorAll(".pour").forEach(p=>p.onclick=()=>{
+    if(bState.checked)return;
+    bState.added=bState.added.filter(x=>x!==p.dataset.ing);
+    $("#tiles").querySelector(`[data-ing="${p.dataset.ing.replace(/"/g,'\\"')}"]`)?.classList.remove("used");
+    drawPour();
+  });
+}
+function pickOne(key,btn,wrap){
+  if(bState.checked)return; bState[key]=btn.dataset[key];
+  document.querySelector(wrap).querySelectorAll(".opt").forEach(x=>x.classList.toggle("sel",x===btn));
+}
+function checkBuild(c){
+  if(bState.checked)return; bState.checked=true;
+  const ingOK=c.build.length===bState.added.length&&c.build.every(i=>bState.added.includes(i));
+  const glassOK=bState.glass===c.glass, garnOK=bState.garnish===c.garnish, perfect=ingOK&&glassOK&&garnOK;
+  if(perfect)bScore++; $("#bScore").textContent=bScore;
+  $("#tiles").querySelectorAll(".tile2").forEach(b=>b.disabled=true);
+  document.querySelectorAll("#glassOpts .opt,#garnOpts .opt").forEach(b=>b.disabled=true);
+  const mark=ok=>`<span class="mk ${ok?'ok':'no'}">${ok?'✓':'✗'}</span>`;
+  $("#buildReveal").innerHTML=`<div class="reveal">
+    <div class="line">${mark(ingOK)}<span><b>Ingredients</b>${ingOK?' — nailed it':' — not quite'}</span></div>
+    ${ingOK?'':`<div class="answer">${esc(c.build.join("\n"))}</div>`}
+    <div class="line">${mark(glassOK)}<span><b>Glass</b> — ${esc(c.glass)}</span></div>
+    <div class="line">${mark(garnOK)}<span><b>Garnish</b> — ${esc(c.garnish)}</span></div>
+    ${METHODS[c.n]?`<div class="answer" style="padding-left:0;margin-top:8px;color:var(--cream)"><span style="color:var(--gold);font-weight:700">Method:</span> ${esc(METHODS[c.n])}</div>`:""}
+    <div style="height:14px"></div>
+    <div class="feedback ${perfect?'ok':'no'}" style="text-align:left">${perfect?'Perfect build 🌺':'Review it and keep moving →'}</div>
+    <div style="height:12px"></div>
+    <button class="btn primary" id="nextBuild">${bPos+1>=bList.length?'See results':'Next drink →'}</button></div>`;
+  $("#nextBuild").onclick=()=>{bPos++;renderBuild()};
+}
+function buildResults(){
+  const pct=Math.round(bScore/bList.length*100);
+  const msg=pct>=90?"You can make the whole menu. 🍹":pct>=60?"Strong — drill the misses.":"Keep building, it'll click.";
+  $("#buildProg").style.width="100%";
+  $("#buildBody").innerHTML=`<div class="build-card results"><div class="big">${bScore}/${bList.length}</div><p>perfect builds · ${pct}%<br>${msg}</p><button class="btn primary" id="bAgain">Run it again</button></div>`;
+  $("#bAgain").onclick=startBuild;
+}
+
+renderStudyChips();
+</script>
+<script>if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
+</body>
+</html>
